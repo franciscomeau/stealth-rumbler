@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import static android.content.Context.VIBRATOR_SERVICE;
@@ -23,10 +24,14 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     private Sensor sensor;
     private JobScheduler job;
     private Vibrator v;
-    double ax,ay,az;   // these are the acceleration in x,y and z axis
-    double sensitivity = 9.;
+    private double ax,ay,az;   // these are the acceleration in x,y and z axis
+    static private final double baseSensitivity = 9.;
+    static private final double sensitivityFactor = 0.9;
+    private double sensitivity;
+    private SeekBar sensitivitySeekBar;
 
-
+    public ConnectToFriendActivity() {
+    }
 
 
     @Override
@@ -46,6 +51,22 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
         //sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
+        sensitivity = baseSensitivity;
+        sensitivitySeekBar = (SeekBar)findViewById(R.id.sensitivitySeekBar);
+        sensitivitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+              sensitivity = baseSensitivity - (((progress-50)/100.) * sensitivityFactor);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
     }
 

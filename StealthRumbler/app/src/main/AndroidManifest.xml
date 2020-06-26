@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.stealthrumbler">
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
@@ -9,14 +10,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".ConnectToFriendActivity">
-        android:parentActivityName=".MainActivity">
-        <!-- The meta-data tag is required if you support API level 15 and lower -->
-
             <meta-data
             android:name="android.support.PARENT_ACTIVITY"
-            android:value=".MainActivity" />
+            android:value=".MainActivity"
+            android:parentActivityName=".MainActivity"
+            />
         </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
