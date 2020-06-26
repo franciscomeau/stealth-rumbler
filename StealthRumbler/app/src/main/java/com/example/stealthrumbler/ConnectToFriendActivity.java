@@ -11,7 +11,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import static android.content.Context.VIBRATOR_SERVICE;
@@ -29,6 +31,8 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     static private final double sensitivityFactor = 0.9;
     private double sensitivity;
     private SeekBar sensitivitySeekBar;
+    private Switch onOffSwitch;
+    private boolean isOn = false;
 
     public ConnectToFriendActivity() {
     }
@@ -40,7 +44,7 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
         setContentView(R.layout.activity_connect_to_friend);
 
         PackageManager pm = this.getPackageManager();
-        if(pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER)) {
+        if (pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER)) {
             Toast.makeText(this, "Has sensor accelerometer!", Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, "No sensor accelerometer!", Toast.LENGTH_LONG).show();
@@ -53,10 +57,10 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
         v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
         sensitivity = baseSensitivity;
-        sensitivitySeekBar = (SeekBar)findViewById(R.id.sensitivitySeekBar);
+        sensitivitySeekBar = (SeekBar) findViewById(R.id.sensitivitySeekBar);
         sensitivitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-              sensitivity = baseSensitivity - (((progress-50)/100.) * sensitivityFactor);
+                sensitivity = baseSensitivity - (((progress - 50) / 100.) * sensitivityFactor);
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -68,6 +72,16 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
             }
         });
 
+        onOffSwitch = (Switch) findViewById(R.id.onOffSwitch);
+        onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    isOn = true;
+                } else {
+                    isOn = false;
+                }
+            }
+        });
     }
 
 
@@ -82,7 +96,7 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
 
 
             if (Math.max(Math.max(ax,ay),az)>=sensitivity) {
-                v.vibrate(500);
+                if (isOn) v.vibrate(500);
             }
         }
     }
