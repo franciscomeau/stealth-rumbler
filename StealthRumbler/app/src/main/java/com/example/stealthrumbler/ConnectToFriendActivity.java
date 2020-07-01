@@ -26,13 +26,17 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     private Sensor sensor;
     private JobScheduler job;
     private Vibrator v;
-    private double ax,ay,az;   // these are the acceleration in x,y and z axis
-    static private final double baseSensitivity = 9.;
+    private double ax, ay, az, magnitude;   // acceleration in x, y, and z axis' as well as the magnitude of the vector
+    static private final double baseSensitivity = 10.; //originally 9.
     static private final double sensitivityFactor = 0.9;
     private double sensitivity;
+    static private final double stoppedVelocity = 9.6;
     private SeekBar sensitivitySeekBar;
     private Switch onOffSwitch;
     private boolean isOn = false;
+    private boolean reachedHighVelocity = false;
+    private boolean reachedStop = false;
+
 
     public ConnectToFriendActivity() {
     }
@@ -95,8 +99,20 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
             az=event.values[2];
 
 
-            if (Math.max(Math.max(ax,ay),az)>=sensitivity) {
-                if (isOn) v.vibrate(500);
+
+            magnitude = Math.sqrt(
+                                    Math.pow(ax,2.)+Math.pow(ay,2.)+Math.pow(az,2.)
+                                    );
+
+            System.out.println("Magnitude is: "+magnitude);
+
+            if (magnitude>=sensitivity) reachedHighVelocity = true;
+            else if (reachedHighVelocity && magnitude <= stoppedVelocity) reachedStop = true;
+
+            if (reachedHighVelocity && reachedStop) { //wait for movement to stop before vibrating
+                reachedHighVelocity = false;
+                reachedStop = false;
+                if (isOn) v.vibrate(250); //previously 500
             }
         }
     }
