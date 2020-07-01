@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -37,6 +38,9 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     private boolean reachedHighVelocity = false;
     private boolean hasReachedStop = false;
     private boolean isCalibrating = false;
+
+    //calibration variables
+    private double peak1 = -1., peak2 = -1., peak3 = -1., low1 = -1., low2 = -1., low3 = -1.;
 
 
     public ConnectToFriendActivity() {
@@ -94,33 +98,38 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if ((!isCalibrating) && shouldVibrate(event)) v.vibrate(250); //previously 500
+        if (event.sensor.getType()!=Sensor.TYPE_ACCELEROMETER) return; //we are only looking at the accelerometer
 
+        ax = event.values[0];
+        ay = event.values[1];
+        az = event.values[2];
+        magnitude = Math.sqrt(
+                Math.pow(ax, 2.) + Math.pow(ay, 2.) + Math.pow(az, 2.)
+        );
+        System.out.println("Magnitude is: "+magnitude);
+
+        if (isCalibrating) {
+            calibrate(magnitude);
+            return;
+        }
+
+        if (shouldVibrate(magnitude)) v.vibrate(250); //previously 500
     }
 
-    private boolean shouldVibrate(SensorEvent event) {
+    private void calibrate(Double magnitude) {
+        }
+
+    private boolean shouldVibrate(Double magnitude) {
 
         if (!isOn) return false;
 
-        if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+        if (magnitude>=sensitivity) reachedHighVelocity = true;
+        else if (reachedHighVelocity && magnitude <= stoppedVelocity) hasReachedStop = true;
 
-            ax=event.values[0];
-            ay=event.values[1];
-            az=event.values[2];
-            magnitude = Math.sqrt(
-                    Math.pow(ax,2.)+Math.pow(ay,2.)+Math.pow(az,2.)
-            );
-
-            System.out.println("Magnitude is: "+magnitude);
-
-            if (magnitude>=sensitivity) reachedHighVelocity = true;
-            else if (reachedHighVelocity && magnitude <= stoppedVelocity) hasReachedStop = true;
-
-            if (reachedHighVelocity && hasReachedStop) { //wait for movement to stop before vibrating
-                reachedHighVelocity = false;
-                hasReachedStop = false;
-                return true; //previously 500
-            }
+        if (reachedHighVelocity && hasReachedStop) { //wait for movement to stop before vibrating
+            reachedHighVelocity = false;
+            hasReachedStop = false;
+            return true; //previously 500
         }
 
         return false;
@@ -128,5 +137,11 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    public void initiateCalibration(View view) {
+        peak1 = -1.; peak2 = -1.; peak3 = -1.; low1 = -1.; low2 = -1.; low3 = -1.; //reset calibration values;
+        isCalibrating = true;
+        Toast.makeText(this, "Now starting calibration. Please make 3 similar movements", Toast.LENGTH_LONG).show();
     }
 }
