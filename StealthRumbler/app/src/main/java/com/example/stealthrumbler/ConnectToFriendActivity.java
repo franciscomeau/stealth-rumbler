@@ -41,6 +41,7 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
 
     //calibration variables
     private double peak1 = -1., peak2 = -1., peak3 = -1., low1 = -1., low2 = -1., low3 = -1.;
+    private int calibrationCounter = 0;
 
 
     public ConnectToFriendActivity() {
@@ -113,52 +114,55 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
             return;
         }
 
-        if (shouldVibrate(magnitude)) v.vibrate(250); //previously 500
+        if (shouldVibrate(magnitude)) v.vibrate(200);
     }
 
     private void calibrate(Double magnitude) {
-        if (peak1==-1.) {
+        if (peak1 == -1.) {
             peak1 = magnitude;
             return;
         }
 
-        if (low1==-1.) {
+        if (low1 == -1.) {
             if (magnitude >= peak1) peak1 = magnitude;
             else low1 = magnitude;
             return;
         }
 
-        if (peak2==-1.) {
+        if (peak2 == -1.) {
             if (magnitude <= low1) low1 = magnitude;
             else peak2 = magnitude;
             return;
         }
 
-        if (low2==-1.) {
+        if (low2 == -1.) {
             if (magnitude >= peak2) peak2 = magnitude;
             else low2 = magnitude;
             return;
         }
 
-        if (peak3==-1.) {
+        if (peak3 == -1.) {
             if (magnitude <= low3) low3 = magnitude;
             else peak3 = magnitude;
             return;
         }
 
-        if (low3==-1.) {
+        if (low3 == -1.) {
             if (magnitude >= peak3) peak3 = magnitude;
             else low3 = magnitude;
             return;
         }
 
-        if (magnitude<low3) low3 = magnitude; //further calibration of low3
+        if (magnitude < low3) low3 = magnitude; //further calibration of low3
         else {
-            baseSensitivity = (peak1+peak2+peak3)/3.;
-            stoppedVelocity = (low1+low2+low3)/3.;
+            if (calibrationCounter < 20) calibrationCounter++;
+            else {  //missed new lowest value low3 n times, end calibration
+                baseSensitivity = (peak1 + peak2 + peak3) / 3.;
+                stoppedVelocity = (low1 + low2 + low3) / 3.;
 
-            isCalibrating = false;
-            Toast.makeText(this, "Calibration finished. Please press the calibrate button again if unsatisfied", Toast.LENGTH_LONG).show();
+                isCalibrating = false;
+                Toast.makeText(this, "Calibration finished. Please press the calibrate button again if unsatisfied", Toast.LENGTH_LONG).show();
+                }
         }
 
         return;
