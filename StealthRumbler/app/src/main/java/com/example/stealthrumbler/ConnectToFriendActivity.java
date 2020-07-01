@@ -28,10 +28,10 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     private JobScheduler job;
     private Vibrator v;
     private double ax, ay, az, magnitude;   // acceleration in x, y, and z axis' as well as the magnitude of the vector
-    static private final double baseSensitivity = 10.; //originally 9.
+    static private double baseSensitivity = 10.; //originally 9.
     static private final double sensitivityFactor = 0.9;
     private double sensitivity;
-    static private final double stoppedVelocity = 9.6;
+    static private double stoppedVelocity = 9.6;
     private SeekBar sensitivitySeekBar;
     private Switch onOffSwitch;
     private boolean isOn = false;
@@ -117,7 +117,52 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     }
 
     private void calibrate(Double magnitude) {
+        if (peak1==-1.) {
+            peak1 = magnitude;
+            return;
         }
+
+        if (low1==-1.) {
+            if (magnitude >= peak1) peak1 = magnitude;
+            else low1 = magnitude;
+            return;
+        }
+
+        if (peak2==-1.) {
+            if (magnitude <= low1) low1 = magnitude;
+            else peak2 = magnitude;
+            return;
+        }
+
+        if (low2==-1.) {
+            if (magnitude >= peak2) peak2 = magnitude;
+            else low2 = magnitude;
+            return;
+        }
+
+        if (peak3==-1.) {
+            if (magnitude <= low3) low3 = magnitude;
+            else peak3 = magnitude;
+            return;
+        }
+
+        if (low3==-1.) {
+            if (magnitude >= peak3) peak3 = magnitude;
+            else low3 = magnitude;
+            return;
+        }
+
+        if (magnitude<low3) low3 = magnitude; //further calibration of low3
+        else {
+            baseSensitivity = (peak1+peak2+peak3)/3.;
+            stoppedVelocity = (low1+low2+low3)/3.;
+
+            isCalibrating = false;
+            Toast.makeText(this, "Calibration finished. Please press the calibrate button again if unsatisfied", Toast.LENGTH_LONG).show();
+        }
+
+        return;
+    }
 
     private boolean shouldVibrate(Double magnitude) {
 
