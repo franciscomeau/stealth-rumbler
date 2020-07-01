@@ -35,7 +35,8 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     private Switch onOffSwitch;
     private boolean isOn = false;
     private boolean reachedHighVelocity = false;
-    private boolean reachedStop = false;
+    private boolean hasReachedStop = false;
+    private boolean isCalibrating = false;
 
 
     public ConnectToFriendActivity() {
@@ -92,29 +93,37 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        //v.vibrate(500);
+
+        if ((!isCalibrating) && shouldVibrate(event)) v.vibrate(250); //previously 500
+
+    }
+
+    private boolean shouldVibrate(SensorEvent event) {
+
+        if (!isOn) return false;
+
         if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+
             ax=event.values[0];
             ay=event.values[1];
             az=event.values[2];
-
-
-
             magnitude = Math.sqrt(
-                                    Math.pow(ax,2.)+Math.pow(ay,2.)+Math.pow(az,2.)
-                                    );
+                    Math.pow(ax,2.)+Math.pow(ay,2.)+Math.pow(az,2.)
+            );
 
             System.out.println("Magnitude is: "+magnitude);
 
             if (magnitude>=sensitivity) reachedHighVelocity = true;
-            else if (reachedHighVelocity && magnitude <= stoppedVelocity) reachedStop = true;
+            else if (reachedHighVelocity && magnitude <= stoppedVelocity) hasReachedStop = true;
 
-            if (reachedHighVelocity && reachedStop) { //wait for movement to stop before vibrating
+            if (reachedHighVelocity && hasReachedStop) { //wait for movement to stop before vibrating
                 reachedHighVelocity = false;
-                reachedStop = false;
-                if (isOn) v.vibrate(250); //previously 500
+                hasReachedStop = false;
+                return true; //previously 500
             }
         }
+
+        return false;
     }
 
     @Override
