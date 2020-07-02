@@ -9,7 +9,7 @@
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
-        android:layout_height="32dp"
+        android:layout_height="wrap_content"
         android:onClick="openConnectActivity"
         android:text="Connect to a friend"
         app:layout_constraintBottom_toBottomOf="parent"
