@@ -26,16 +26,12 @@ public class SetSensitivityActivity extends AppCompatActivity implements SensorE
     private Sensor sensor;
     private JobScheduler job;
     private Vibrator v;
+    private VibrateHelper vibeHelper;
     private double ax, ay, az, magnitude;   // acceleration in x, y, and z axis' as well as the magnitude of the vector
-    static private double baseSensitivity = 10.; //originally 9.
     static private final double sensitivityFactor = 0.9;
-    private double sensitivity;
-    static private double stoppedVelocity = 9.6;
     private SeekBar sensitivitySeekBar;
     private Switch onOffSwitch;
     private boolean isOn = false;
-    private boolean reachedHighVelocity = false;
-    private boolean hasReachedStop = false;
     private boolean isCalibrating = false;
 
     //calibration variables
@@ -65,11 +61,14 @@ public class SetSensitivityActivity extends AppCompatActivity implements SensorE
 
         v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
-        sensitivity = baseSensitivity;
+        vibeHelper = new VibrateHelper();
+
         sensitivitySeekBar = (SeekBar) findViewById(R.id.sensitivitySeekBar);
         sensitivitySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sensitivity = baseSensitivity - (((progress - 50) / 100.) * sensitivityFactor);
+                vibeHelper.setSensitivity(
+                        vibeHelper.getBaseSensitivity() - (((progress - 50) / 100.) * sensitivityFactor)
+                );
             }
 
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -91,6 +90,8 @@ public class SetSensitivityActivity extends AppCompatActivity implements SensorE
                 }
             }
         });
+
+        VibrateHelper vibHelper = new VibrateHelper();
     }
 
 
@@ -156,8 +157,12 @@ public class SetSensitivityActivity extends AppCompatActivity implements SensorE
         else {
             if (calibrationCounter < 20) calibrationCounter++;
             else {  //missed new lowest value low3 n times, end calibration
-                baseSensitivity = (peak1 + peak2 + peak3) / 3.;
-                stoppedVelocity = (low1 + low2 + low3) / 3.;
+                vibeHelper.setBaseSensitivity(
+                        (peak1 + peak2 + peak3) / 3.
+                );
+                vibeHelper.setStoppedVelocity(
+                        (low1 + low2 + low3) / 3.
+                );
 
                 isCalibrating = false;
                 Toast.makeText(this, "Calibration finished. Please press the calibrate button again if unsatisfied", Toast.LENGTH_LONG).show();
@@ -170,17 +175,7 @@ public class SetSensitivityActivity extends AppCompatActivity implements SensorE
     private boolean shouldVibrate(Double magnitude) {
 
         if (!isOn) return false;
-
-        if (magnitude>=sensitivity) reachedHighVelocity = true;
-        else if (reachedHighVelocity && magnitude <= stoppedVelocity) hasReachedStop = true;
-
-        if (reachedHighVelocity && hasReachedStop) { //wait for movement to stop before vibrating
-            reachedHighVelocity = false;
-            hasReachedStop = false;
-            return true; //previously 500
-        }
-
-        return false;
+        else return vibeHelper.vibrateAlgorithm(magnitude);
     }
 
     @Override
@@ -195,8 +190,8 @@ public class SetSensitivityActivity extends AppCompatActivity implements SensorE
 
     public void openFindFriendActivity(View view) {
         Intent intent = new Intent(this, FindFriendActivity.class);
-        intent.putExtra("SENSITIVITY", sensitivity);
-        intent.putExtra("STOPPED_VELOCITY", stoppedVelocity);
+        intent.putExtra("SENSITIVITY", vibeHelper.getSensitivity());
+        intent.putExtra("STOPPED_VELOCITY", vibeHelper.getStoppedVelocity());
         startActivity(intent);
     }
 }
