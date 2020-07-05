@@ -14,8 +14,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public void openConnectActivity(View view) {
-        Intent intent = new Intent(this, ConnectToFriendActivity.class);
+    public void openSetSensitivityActivity(View view) {
+        Intent intent = new Intent(this, SetSensitivityActivity.class);
         startActivity(intent);
     }
 }

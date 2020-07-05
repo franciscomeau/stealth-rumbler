@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ConnectToFriendActivity">
+    tools:context=".SetSensitivityActivity">
 
     <Switch
         android:id="@+id/onOffSwitch"
@@ -50,4 +50,16 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sensitivitySeekBar" />
+
+    <Button
+        android:id="@+id/findFriendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="180dp"
+        android:onClick="openFindFriendActivity"
+        android:text="FIND FRIEND"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/calibrateButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>

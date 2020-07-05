@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.job.JobScheduler;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,10 +18,8 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import static android.content.Context.VIBRATOR_SERVICE;
 
-
-public class ConnectToFriendActivity extends AppCompatActivity implements SensorEventListener {
+public class SetSensitivityActivity extends AppCompatActivity implements SensorEventListener {
 
 
     private SensorManager sensorManager;
@@ -44,14 +43,14 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
     private int calibrationCounter = 0;
 
 
-    public ConnectToFriendActivity() {
+    public SetSensitivityActivity() {
     }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect_to_friend);
+        setContentView(R.layout.activity_set_sensitivity);
 
         PackageManager pm = this.getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER)) {
@@ -192,5 +191,12 @@ public class ConnectToFriendActivity extends AppCompatActivity implements Sensor
         peak1 = -1.; peak2 = -1.; peak3 = -1.; low1 = -1.; low2 = -1.; low3 = -1.; //reset calibration values;
         isCalibrating = true;
         Toast.makeText(this, "Now starting calibration. Please make 3 similar movements", Toast.LENGTH_LONG).show();
+    }
+
+    public void openFindFriendActivity(View view) {
+        Intent intent = new Intent(this, FindFriendActivity.class);
+        intent.putExtra("SENSITIVITY", sensitivity);
+        intent.putExtra("STOPPED_VELOCITY", stoppedVelocity);
+        startActivity(intent);
     }
 }
